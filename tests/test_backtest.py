@@ -3,7 +3,9 @@ import os
 import pandas as pd
 import matplotlib
 matplotlib.use('Agg')  # Use non-GUI backend for saving plots
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+import webbrowser
+
 
 # Add parent directory to sys.path for module imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -26,7 +28,6 @@ def generate_report(df60, trades, balance_curve):
         Prints performance metrics to stdout.
     """
     df_trades = pd.DataFrame(trades)
-
     if trades != []:
         # Basic performance statistics
         df_trades['profit_abs'] = (df_trades['profit_pct'] / 100) + 1
@@ -58,7 +59,7 @@ def generate_report(df60, trades, balance_curve):
         print(breakdown_reason)
 
         # Convert timestamp to datetime (and drop timezone)
-        df60['timestamp'] = pd.to_datetime(df60['timestamp']).dt.tz_localize(None)
+        df60['timestamp'] = pd.to_datetime(df60['timestamp'], unit='ms')
 
         # Detect trend for each candle
         trends = []
@@ -73,47 +74,106 @@ def generate_report(df60, trades, balance_curve):
                 trends.append(trend)
         df60['trend'] = trends
 
-        # Color map for trend background
+
+        fig = go.Figure()
+
+        # Plot close price as a line
+        fig.add_trace(go.Scatter(
+            x=df60['timestamp'],
+            y=df60['close'],
+            mode='lines',
+            name='BTC/USDT Close Price',
+            line=dict(color='blue')
+        ))
+
+        # Background shading by trend type
         colors = {
-            'bull': 'green',
-            'bear': 'red',
-            'sideways': 'gray',
-            None: 'white'
+            'bull': 'rgba(0, 255, 0, 0.2)',        # green
+            'bear': 'rgba(255, 0, 0, 0.2)',        # red
+            'sideways': 'rgba(128, 128, 128, 0.2)',# gray
+            None: 'rgba(255, 255, 255, 0.2)'       # white (undefined)
         }
 
-        # Plot close price with background colored by trend
-        plt.figure(figsize=(14, 6))
-        plt.plot(df60['timestamp'], df60['close'], label='BTC/USDT Close Price', color='blue')
-        plt.xlabel('Time')
-        plt.ylabel('Price (USDT)')
-        plt.grid(True)
-        plt.legend()
-        plt.tight_layout()
+        # Group by consecutive trend segments
+        start_idx = 0
+        for i in range(1, len(df60)):
+            if df60['trend'].iloc[i] != df60['trend'].iloc[i - 1]:
+                trend = df60['trend'].iloc[i - 1]
+                if trend:
+                    fig.add_vrect(
+                        x0=df60['timestamp'].iloc[start_idx],
+                        x1=df60['timestamp'].iloc[i - 1],
+                        fillcolor=colors.get(trend, 'white'),
+                        opacity=0.2,
+                        line_width=0
+                    )
+                start_idx = i
 
-        for trend_type in df60['trend'].unique():
-            mask = df60['trend'] == trend_type
-            plt.fill_between(df60['timestamp'],
-                             df60['close'].min(), df60['close'].max(),
-                             where=mask,
-                             color=colors[trend_type], alpha=0.2, label=trend_type)
+        
+        final_trend = df60['trend'].iloc[-1]
+        if final_trend:
+            fig.add_vrect(
+                x0=df60['timestamp'].iloc[start_idx],
+                x1=df60['timestamp'].iloc[-1],
+                fillcolor=colors.get(final_trend, 'white'),
+                opacity=0.2,
+                line_width=0
+            )
 
-        # Mark trade entries and exits on the plot
+        # Add trade entry and exit markers
         for trade in trades:
-            trade_time = pd.to_datetime(trade['entry_time'])
-            exit_time = pd.to_datetime(trade['exit_time'])
+            trade_time = pd.to_datetime(trade['entry_time'], unit='ms')
+            exit_time = pd.to_datetime(trade['exit_time'], unit='ms')
             entry_price = trade['entry_price']
             exit_price = trade['exit_price']
 
             if trade['position'] == 'short':
-                plt.scatter(trade_time, entry_price, color='red', s=25, zorder=5)
-                plt.scatter(exit_time, exit_price, color='yellow', s=25)
+                # Short entry (red)
+                fig.add_trace(go.Scatter(
+                    x=[trade_time], y=[entry_price],
+                    mode='markers',
+                    marker=dict(color='red', size=8),
+                    name='Short Entry'
+                ))
+                # Exit (yellow)
+                fig.add_trace(go.Scatter(
+                    x=[exit_time], y=[exit_price],
+                    mode='markers',
+                    marker=dict(color='yellow', size=8),
+                    name='Exit'
+                ))
             elif trade['position'] == 'long':
-                plt.scatter(trade_time, entry_price, color='green', s=25, zorder=5)
-                plt.scatter(exit_time, exit_price, color='yellow', s=25)
+                # Long entry (green)
+                fig.add_trace(go.Scatter(
+                    x=[trade_time], y=[entry_price],
+                    mode='markers',
+                    marker=dict(color='green', size=8),
+                    name='Long Entry'
+                ))
+                # Exit (yellow)
+                fig.add_trace(go.Scatter(
+                    x=[exit_time], y=[exit_price],
+                    mode='markers',
+                    marker=dict(color='yellow', size=8),
+                    name='Exit'
+                ))
 
-        # Save the final report image
-        plt.savefig('static/reports/btc_close_price.png')
-        plt.close()
+        # Layout settings
+        fig.update_layout(
+            title='BTC/USDT Close Price with Trades and Trend Background',
+            xaxis_title='Time',
+            yaxis_title='Price (USDT)',
+            template='plotly_white',
+            legend=dict(orientation="h")
+        )
+
+        # Export to interactive HTML file
+        output_path = "static/reports/btc_close_price.html"
+        fig.write_html(output_path)
+
+        # Open the HTML file in the default browser
+        file_path = os.path.abspath("static/reports/btc_close_price.html")
+        webbrowser.open(f"file:///{file_path}")
 
     else:
         print('Trades is empty')
