@@ -6,7 +6,7 @@ This repository contains a trading bot based on a two-stage machine learning mod
 
 ## 📁 Project Structure
 
-<pre> ```bash ├── core/ # Contains all logic for strategy and data preprocessing ├── static/ # Stores CSV files with historical asset prices and generated reports with plots ├── tests/ # Backtesting and testing logic ├── .gitignore # Files and folders excluded from version control ├── README.md # Project overview (you are here) ├── main.py # Main execution script for generating reports ├── polling_bot.py # Script for generating live trading signals using trained models ├── requirements.txt # Python dependencies ├── stage1_model.pkl # Trained model for stage 1 (Trade vs Hold) ├── stage2_model.pkl # Trained model for stage 2 (Buy vs Sell) ├── users.json # Sample user data (for access control or signal delivery) ``` </pre>
+<pre>  ├── core/ # Contains all logic for strategy and data preprocessing ├── static/ # Stores CSV files with historical asset prices and generated reports with plots ├── tests/ # Backtesting and testing logic ├── .gitignore # Files and folders excluded from version control ├── README.md # Project overview (you are here) ├── main.py # Main execution script for generating reports ├── polling_bot.py # Script for generating live trading signals using trained models ├── requirements.txt # Python dependencies ├── stage1_model.pkl # Trained model for stage 1 (Trade vs Hold) ├── stage2_model.pkl # Trained model for stage 2 (Buy vs Sell) ├── users.json # Sample user data (for access control or signal delivery)  </pre>
 
 
 ## 🔍 Description
