@@ -63,9 +63,9 @@ def run_backtest(df_60min, starting_balance=1000, fee=0.001):
 
         # Generate signal using the strategy model appropriate for current market regime
         if trend == 'bull':
-            signal = bull_signal(sliced, model_st1, model_st2)
+            signal = bull_signal(sliced, model_st1, model_st2, position)
         elif trend == 'bear':
-            signal = bear_signal(sliced, model_st1, model_st2)
+            signal = bear_signal(sliced, model_st1, model_st2, position)
         else:
             signal = range_signal(sliced, sliced)
 
@@ -106,6 +106,7 @@ def run_backtest(df_60min, starting_balance=1000, fee=0.001):
                     exit_price = take_profit_price * (1 - fee)
                     exit_reason = 'take_profit'
                     exit_trade = True
+                #COMMENTED FOR TEST
                 elif signal == "SELL":
                     exit_price = close_price * (1 - fee)
                     exit_reason = 'signal_sell'
@@ -120,6 +121,7 @@ def run_backtest(df_60min, starting_balance=1000, fee=0.001):
                     exit_price = take_profit_price * (1 + fee)
                     exit_reason = 'take_profit'
                     exit_trade = True
+                #COMMENTED FOR TEST    
                 elif signal == "BUY":
                     exit_price = close_price * (1 + fee)
                     exit_reason = 'signal_buy'

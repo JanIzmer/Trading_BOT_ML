@@ -119,7 +119,7 @@ def generate_report(df60, trades, balance_curve):
         print('Trades is empty')
 
 
-def test_backtest_runs(rows=3500):
+def test_backtest_runs(rows=5000):
     """
     Loads historical data, runs backtest, generates report, and performs basic assertions.
 

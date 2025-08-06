@@ -1,7 +1,7 @@
 import pandas as pd
 from core.data_clean_functions.prepare_data_for_model import prepare_training_data as prepare_data
 
-def generate_signal(df, model_stage1, model_stage2, threshold=0.6):
+def generate_signal(df, model_stage1, model_stage2, position=None, threshold=0.6):
     """
     Generates a trading signal ('BUY', 'SELL', or 'HOLD') based on a two-stage machine learning process.
 
@@ -12,11 +12,18 @@ def generate_signal(df, model_stage1, model_stage2, threshold=0.6):
         df (pd.DataFrame): DataFrame containing market data and technical indicators.
         model_stage1: First-stage model to classify TRADE vs HOLD.
         model_stage2: Second-stage model to classify BUY (0), HOLD (1), or SELL (2).
+        position(string): Short or long or None
         threshold (float): Probability threshold for initiating a trade (default is 0.6).
 
     Returns:
         str: A trading signal - one of 'BUY', 'SELL', or 'HOLD'.
     """
+    # If we already in trade we increase threshold for initiating a trade to 0.75(test)
+    if position == None:
+        threshold = 0.6
+    else:
+        threshold = 0.75
+
     # Check if input data is too short or empty
     if df.empty or len(df) < 50:
         print("Too few rows in df")
