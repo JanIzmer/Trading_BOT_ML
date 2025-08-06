@@ -6,7 +6,6 @@ This repository contains a trading bot based on a two-stage machine learning mod
 
 ## 📁 Project Structure
 
-.
 ├── core/ # Contains all logic for strategy and data preprocessing
 ├── static/ # Stores CSV files with historical asset prices and generated reports with plots
 ├── tests/ # Backtesting and testing logic
