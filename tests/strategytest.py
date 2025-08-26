@@ -23,7 +23,7 @@ model_st1 = joblib.load('stage1_model.pkl')
 model_st2 = joblib.load('stage2_model.pkl')
 
 
-def run_backtest(df_60min, starting_balance=1000, fee=0.001):
+def run_backtest(df_60min, starting_balance=1000, fee=0.0001):
     """
     Runs a backtest using technical indicators and ML-based trade signal generators.
 

@@ -20,9 +20,9 @@ def generate_signal(df, model_stage1, model_stage2, position, threshold=0.6):
     """
     # If we already in trade we increase threshold for initiating a trade to 0.75(test)
     if position == None:
-        threshold = 0.6
+        threshold = 0.7
     else:
-        threshold = 0.75
+        threshold = 0.8
 
     # Check if input data is too short or empty
     if df.empty or len(df) < 50:
