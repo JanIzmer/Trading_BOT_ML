@@ -104,7 +104,6 @@ timestamp, open, high, low, close, volume
 - Win rate: 43%
 - Total profit: -2.02% 
 
-Example output (from `static/reports/`):
 
 ![Equity Curve](static/reports/btc_close_price.html)   
 
